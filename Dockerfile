@@ -14,7 +14,7 @@ RUN apt-get update -y && apt-get install -y \
     zlib1g-dev libblas-dev chromium-driver liblapack-dev freetds-dev freetds-bin gfortran \
     libxml2-dev libxslt1-dev python3-cffi libcairo2 libpango-1.0-0 libpangocairo-1.0-0 \
     libgdk-pixbuf2.0-0 libffi-dev shared-mime-info libmariadb-dev libmemcached-dev \
-    nim rustc redis-tools
+    nim rustc redis-tools vim-tiny
 
 # Install locales package
 RUN apt-get update && apt-get install -y locales
@@ -29,18 +29,32 @@ ENV LANGUAGE en_US:en
 ENV LC_ALL en_US.UTF-8
 
 # Clean up
-RUN apt-get update -y && apt-get install -y \
-    && rm -rf /var/lib/apt/lists/*
+RUN apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Create a user 'troc', create necessary directories and set permissions
+RUN useradd --create-home --user-group troc
+RUN mkdir -p /home/troc/.ssh
+RUN chmod -R 770 /home/troc
+RUN chown -R troc:troc /home/troc
+
+# Add troc user to sudo
+RUN adduser troc sudo
+RUN echo "troc ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
 # Set the working directory to /code
+RUN mkdir -p /code
+RUN chown -R troc:troc /code
+
+# Change user and set working directory
+USER troc
 WORKDIR /code
 
 # Set Site Root Variable
 ENV SITE_ROOT=/code
 
 # Environment:
-RUN python -m venv /opt/venv
-ENV PATH="/opt/venv/bin:$PATH"
+# RUN python -m venv /code/venv
+ENV PATH="/code/venv/bin:/home/troc/.local/bin:$PATH"
 
 # Install and upgrade pip
 RUN python3 -m pip install --upgrade pip sdist setuptools wheel==0.42.0
@@ -50,3 +64,6 @@ COPY Makefile /code/
 
 # Execute 'make install' to install all requirements
 RUN make install
+
+# Expose port 5000
+EXPOSE 5000

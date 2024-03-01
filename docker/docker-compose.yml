@@ -17,7 +17,8 @@ services:
         hard: 262144
     volumes:
       - /home/jesuslara/proyectos/navigator/navapi:/code
-    command: /bin/bash -c "make image && python /code/run.py"
+    user: "troc"
+    command: /bin/bash -c "make install && python /code/run.py"
     environment:
       SITE_ROOT: /code
     networks:
