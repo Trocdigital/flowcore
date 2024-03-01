@@ -1,4 +1,4 @@
-FROM python:3.10.13-slim-bookworm as builder
+FROM python:3.10.13-slim-bookworm
 
 USER root
 
@@ -33,7 +33,7 @@ RUN apt-get update -y && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Create a user 'troc', create necessary directories and set permissions
-RUN id -u troc &>/dev/null || (useradd --create-home troc && echo "User troc created") || echo "Failed to create user troc"
+RUN id -u troc &>/dev/null || useradd --create-home troc
 
 RUN [ -d /var/log/troc ] || mkdir /var/log/troc && chown troc /var/log/troc
 
@@ -49,10 +49,6 @@ WORKDIR /code
 # Set Site Root Variable
 ENV SITE_ROOT=/code
 
-# Environment:
-RUN python -m venv /opt/venv
-ENV PATH="/opt/venv/bin:$PATH"
-
 # Install and upgrade pip
 RUN python3 -m pip install --upgrade pip sdist setuptools wheel==0.42.0
 
@@ -61,3 +57,6 @@ COPY Makefile /code/
 
 # Execute 'make install' to install all requirements
 RUN make install
+
+# Expose port 5000
+EXPOSE 5000
