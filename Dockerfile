@@ -32,17 +32,6 @@ ENV LC_ALL en_US.UTF-8
 RUN apt-get update -y && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
-# Create a user 'troc', create necessary directories and set permissions
-RUN id -u troc &>/dev/null || (useradd --create-home troc && echo "User troc created") || echo "Failed to create user troc"
-
-RUN [ -d /var/log/troc ] || mkdir /var/log/troc && chown troc /var/log/troc
-
-# Create the /code directory
-RUN [ -d /code ] || mkdir /code && chown troc /code
-
-# Switch to user 'troc'
-USER troc
-
 # Set the working directory to /code
 WORKDIR /code
 
