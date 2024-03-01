@@ -1,4 +1,4 @@
-FROM python:3.10.13-slim-bookworm as builder
+FROM python:3.10.13-slim-bookworm
 
 USER root
 
@@ -48,10 +48,6 @@ WORKDIR /code
 
 # Set Site Root Variable
 ENV SITE_ROOT=/code
-
-# Environment:
-RUN python -m venv /opt/venv
-ENV PATH="/opt/venv/bin:$PATH"
 
 # Install and upgrade pip
 RUN python3 -m pip install --upgrade pip sdist setuptools wheel==0.42.0
