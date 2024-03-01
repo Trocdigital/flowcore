@@ -35,7 +35,7 @@ RUN apt-get update -y && apt-get install -y \
 # Create a user 'troc', create necessary directories and set permissions
 RUN id -u troc &>/dev/null || useradd --create-home troc
 
-RUN [ -d /var/log/troc ] || mkdir /var/log/troc && chown troc:troc /var/log/troc
+RUN [ -d /var/log/troc ] || mkdir /var/log/troc && chown troc /var/log/troc
 
 # Create the /code directory
 RUN [ -d /code ] || mkdir /code && chown troc /code
@@ -61,9 +61,3 @@ COPY Makefile /code/
 
 # Execute 'make install' to install all requirements
 RUN make install
-
-# Expose port 5000
-EXPOSE 5000
-
-# Command to run the application
-CMD ["python", "run.py"]
