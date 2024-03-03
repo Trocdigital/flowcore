@@ -43,7 +43,7 @@ services:
         hard: 262144
     volumes:
       - /home/jesuslara/proyectos/navigator/dataintegrator-worker:/code
-    command: /bin/bash -c "make image && python /code/run.py"
+    command: /bin/sh -c "make image && ls -la /code && exec /code/start.sh"
     environment:
       SITE_ROOT: /code
     networks:

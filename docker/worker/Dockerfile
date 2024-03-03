@@ -1,4 +1,4 @@
-FROM python:3.10.13-slim-bookworm
+FROM python:3.10.13-slim-bookworm as builder
 
 USER root
 
@@ -14,7 +14,7 @@ RUN apt-get update -y && apt-get install -y \
     zlib1g-dev libblas-dev chromium-driver liblapack-dev freetds-dev freetds-bin gfortran \
     libxml2-dev libxslt1-dev python3-cffi libcairo2 libpango-1.0-0 libpangocairo-1.0-0 \
     libgdk-pixbuf2.0-0 libffi-dev shared-mime-info libmariadb-dev libmemcached-dev \
-    nim rustc redis-tools
+    nim rustc redis-tools vim-tiny
 
 # Install locales package
 RUN apt-get update && apt-get install -y locales
@@ -29,34 +29,55 @@ ENV LANGUAGE en_US:en
 ENV LC_ALL en_US.UTF-8
 
 # Clean up
-RUN apt-get update -y && apt-get install -y \
-    && rm -rf /var/lib/apt/lists/*
+RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Create a user 'troc', create necessary directories and set permissions
-RUN id -u troc &>/dev/null || useradd --create-home troc
+RUN useradd --create-home --user-group troc
+RUN mkdir -p /home/troc/.ssh
+RUN chmod -R 770 /home/troc
+RUN chown -R troc:troc /home/troc
 
-RUN [ -d /var/log/troc ] || mkdir /var/log/troc && chown troc /var/log/troc
-
-# Create the /code directory
-RUN [ -d /code ] || mkdir /code && chown troc /code
-
-# Switch to user 'troc'
-USER troc
+# Add troc user to sudo
+RUN adduser troc sudo
+RUN echo "troc ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
 # Set the working directory to /code
+RUN mkdir -p /code
+RUN chown -R troc:troc /code
+
+# Change user and set working directory
+USER troc
 WORKDIR /code
 
 # Set Site Root Variable
 ENV SITE_ROOT=/code
 
+# Environment:
+ENV PATH="/code/venv/bin:/home/troc/.local/bin:$PATH"
+
 # Install and upgrade pip
 RUN python3 -m pip install --upgrade pip sdist setuptools wheel==0.42.0
 
 # Copy the requirements to the working directory
+# Switch back to root to change file ownerships
+USER root
+
 COPY Makefile /code/
+RUN chown -R troc:troc /code
+# Assuming /code is your working directory and also where you'll run `make image`
+RUN chown troc:troc /code /home/ubuntu/symbits /var/log/troc/
+RUN chown -R troc:troc /code/start.sh
+RUN chmod 777 /code/start.sh
+RUN chmod +x /code/start.sh
+
+# Switch back to troc for subsequent commands
+USER troc
 
 # Execute 'make install' to install all requirements
 RUN make install
 
 # Expose port 5000
 EXPOSE 5000
+
+RUN ls -la /code
+ENTRYPOINT ["sh", "-c", "ls -la /code && exec /code/start.sh"]

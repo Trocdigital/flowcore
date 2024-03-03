@@ -43,7 +43,9 @@ RUN echo "troc ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
 # Set the working directory to /code
 RUN mkdir -p /code
+COPY Makefile /code/
 RUN chown -R troc:troc /code
+RUN chown troc:troc /code /home/ubuntu/symbits /var/log/troc/
 
 # Change user and set working directory
 USER troc
@@ -53,14 +55,10 @@ WORKDIR /code
 ENV SITE_ROOT=/code
 
 # Environment:
-# RUN python -m venv /code/venv
 ENV PATH="/code/venv/bin:/home/troc/.local/bin:$PATH"
 
 # Install and upgrade pip
 RUN python3 -m pip install --upgrade pip sdist setuptools wheel==0.42.0
-
-# Copy the requirements to the working directory
-COPY Makefile /code/
 
 # Execute 'make install' to install all requirements
 RUN make install
