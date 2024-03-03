@@ -45,6 +45,7 @@ RUN echo "troc ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 RUN mkdir -p /code
 COPY Makefile /code/
 RUN chown -R troc:troc /code
+RUN mkdir -p /home/ubuntu/symbits /var/log/troc/
 RUN chown troc:troc /code /home/ubuntu/symbits /var/log/troc/
 
 # Change user and set working directory

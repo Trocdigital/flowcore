@@ -65,6 +65,7 @@ USER root
 COPY Makefile /code/
 RUN chown -R troc:troc /code
 # Assuming /code is your working directory and also where you'll run `make image`
+RUN mkdir -p /home/ubuntu/symbits /var/log/troc/
 RUN chown troc:troc /code /home/ubuntu/symbits /var/log/troc/
 RUN chown -R troc:troc /code/start.sh
 RUN chmod 777 /code/start.sh
