@@ -56,7 +56,7 @@ ENV SITE_ROOT=/code
 ENV PATH="/code/venv/bin:/home/troc/.local/bin:$PATH"
 
 # Install and upgrade pip
-RUN python3 -m pip install --upgrade pip sdist setuptools wheel==0.42.0
+RUN python3 -m pip install --upgrade pip sdist setuptools
 
 # Copy the requirements to the working directory
 # Switch back to root to change file ownerships
@@ -67,9 +67,6 @@ RUN chown -R troc:troc /code
 # Assuming /code is your working directory and also where you'll run `make image`
 RUN mkdir -p /home/ubuntu/symbits /var/log/troc/
 RUN chown troc:troc /code /home/ubuntu/symbits /var/log/troc/
-RUN chown -R troc:troc /code/start.sh
-RUN chmod 777 /code/start.sh
-RUN chmod +x /code/start.sh
 
 # Switch back to troc for subsequent commands
 USER troc
@@ -81,4 +78,4 @@ RUN make install
 EXPOSE 5000
 
 RUN ls -la /code
-ENTRYPOINT ["sh", "-c", "ls -la /code && exec /code/start.sh"]
+ENTRYPOINT ["sh", "-c", "ls -la /code && /code/start.sh"]

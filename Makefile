@@ -3,7 +3,7 @@ install:
 	pip install --upgrade asyncdb[default]
 	pip install --upgrade navconfig[default]
 	pip install --upgrade async-notify[all]
-	pip install --upgrade navigator-api[locale]
+	pip install --upgrade navigator-api[locale,uvloop]
 	# Nav requirements:
 	pip install --upgrade navigator-session
 	pip install --upgrade navigator-auth

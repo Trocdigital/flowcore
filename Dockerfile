@@ -68,7 +68,7 @@ ENV SITE_ROOT=/code
 ENV PATH="/code/venv/bin:/home/troc/.local/bin:$PATH"
 
 # Install and upgrade pip
-RUN python3 -m pip install --upgrade pip sdist setuptools wheel==0.42.0
+RUN python3 -m pip install --upgrade pip sdist setuptools
 
 # Execute 'make install' to install all requirements
 RUN make install
