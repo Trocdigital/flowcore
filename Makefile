@@ -8,3 +8,5 @@ install:
 	pip install --upgrade navigator-session
 	pip install --upgrade navigator-auth
 	pip install --upgrade querysource
+	pip install --upgrade gunicorn
+
