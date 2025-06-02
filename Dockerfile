@@ -14,7 +14,7 @@ RUN apt-get update -y && apt-get install -y \
     zlib1g-dev libblas-dev chromium-driver liblapack-dev freetds-dev freetds-bin gfortran \
     libxml2-dev libxslt1-dev python3-cffi libcairo2 libpango-1.0-0 libpangocairo-1.0-0 \
     libgdk-pixbuf2.0-0 libffi-dev shared-mime-info libmariadb-dev libmemcached-dev \
-    nim rustc redis-tools vim-tiny
+    nim rustc redis-tools vim-tiny exempi libexempi-dev
 
 # Install locales package
 RUN apt-get update && apt-get install -y locales
