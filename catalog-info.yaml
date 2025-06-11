@@ -2,9 +2,27 @@ apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
   name: flowcore
+  description: Main Image for Navigator Apps - A Python-based application framework for building scalable applications
   annotations:
     github.com/project-slug: Trocdigital/flowcore
+    backstage.io/techdocs-ref: dir:.
+    backstage.io/source-location: url:https://github.com/Trocdigital/flowcore
 spec:
-  type: other
-  lifecycle: dev
+  type: service
+  lifecycle: experimental
   owner: navigator
+  system: navigator
+  providesApis:
+    - navigator-api
+  consumesApis:
+    - navigator-auth
+    - navigator-session
+    - querysource
+  dependencies:
+    - resource:postgres
+    - resource:redis
+  tags:
+    - python
+    - api
+    - navigator
+    - docker
