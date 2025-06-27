@@ -5,7 +5,7 @@ metadata:
   description: Main Image for Navigator Apps - A Python-based application framework for building scalable applications
   annotations:
     github.com/project-slug: Trocdigital/flowcore
-    backstage.io/techdocs-ref: dir:.
+    backstage.io/techdocs-ref: dir:docs
     backstage.io/source-location: url:https://github.com/Trocdigital/flowcore
 spec:
   type: service
