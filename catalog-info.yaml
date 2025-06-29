@@ -6,7 +6,6 @@ metadata:
   annotations:
     github.com/project-slug: Trocdigital/flowcore
     backstage.io/techdocs-ref: dir:.
-    backstage.io/source-location: url:https://github.com/Trocdigital/flowcore
 spec:
   type: service
   lifecycle: experimental
