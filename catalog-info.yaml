@@ -6,6 +6,11 @@ metadata:
   annotations:
     github.com/project-slug: Trocdigital/flowcore
     backstage.io/techdocs-ref: dir:.
+tags:
+ - python
+ - api
+ - navigator
+ - docker
 spec:
   dependsOn:
    - resource:default/argocd
@@ -13,8 +18,4 @@ spec:
   lifecycle: dev
   owner: navigator_platforms
   system: navigator-system
-  tags:
-    - python
-    - api
-    - navigator
-    - docker
+
