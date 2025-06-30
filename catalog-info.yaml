@@ -7,19 +7,12 @@ metadata:
     github.com/project-slug: Trocdigital/flowcore
     backstage.io/techdocs-ref: dir:.
 spec:
+  dependsOn:
+   - resource:default/argocd
   type: service
-  lifecycle: experimental
-  owner: navigator
-  system: navigator
-  providesApis:
-    - navigator-api
-  consumesApis:
-    - navigator-auth
-    - navigator-session
-    - querysource
-  dependencies:
-    - resource:postgres
-    - resource:redis
+  lifecycle: dev
+  owner: navigator_platforms
+  system: navigator-system
   tags:
     - python
     - api
