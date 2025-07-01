@@ -16,6 +16,6 @@ spec:
    - resource:default/argocd
   type: service
   lifecycle: dev
-  owner: navigator_platforms
+  owner: navigator_platform
   system: navigator-system
 
