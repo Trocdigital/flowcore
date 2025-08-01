@@ -21,7 +21,7 @@ RUN apt-get update && apt-get install -y locales
 
 # Set the locale to en_US.UTF-8 and other languages
 RUN sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen
-RUN for lang in en_US.UTF-8 es_ES.UTF-8 zh_CN.UTF-8 zh_TW.UTF-8 fr.UTF-8 de.UTF-8 tr.UTF-8 ja.UTF-8 ko.UTF-8; do locale-gen $lang; done
+RUN for lang in en_US.UTF-8 es_ES.UTF-8 zh_CN.UTF-8 zh_TW.UTF-8 fr.UTF-8 de.UTF-8 tr.UTF-8 ja.UTF-8 ko.UTF-8 pt_BR.UTF-8 pt_PT.UTF-8; do locale-gen $lang; done
 RUN update-locale
 
 # Set environment variables for the locale
@@ -36,6 +36,8 @@ ENV LANG_TR=tr.UTF-8
 ENV LANG_ES=es_ES.UTF-8
 ENV LANG_DE=de.UTF-8
 ENV LANG_FR=fr.UTF-8
+ENV LANG_PT_BR=pt_BR.UTF-8
+ENV LANG_PT_PT=pt_PT.UTF-8
 
 # Clean up
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
