@@ -1,7 +1,7 @@
 [project]
 name = "flowcore"
-version = "0.1.0"
-description = "Flowcore  Project for navigator apps"
+version = "2.0.0"
+description = "Navigator flowcore, image base for deploy apps."
 authors = [
     {name = "Jesus Lara", email = "jlara@trocglobal.com"}
 ]
@@ -11,12 +11,10 @@ requires-python = ">=3.10.1"
 dependencies = [
     # Specific requirements
     "transitions==0.9.2",
-
     # Azure integration
     "azure-teambots",
-
-    # Core dependencies
-    "querysource>=3.17.0",
+    # Flowtask + QuerySource and AI Parrot
+    "querysource"
 ]
 
 [project.optional-dependencies]
@@ -47,3 +45,9 @@ dev-dependencies = [
     "black",
     "pylint"
 ]
+
+[tool.uv.sources]
+# For usage in development, uncomment the following lines to use local paths for your libraries:
+# querysource = { path = "../querysource", editable = true }
+# flowtask = { path = "../flowtask", editable = true }
+# ai-parrot = { path = "../ai-parrot", editable = true }

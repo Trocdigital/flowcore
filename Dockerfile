@@ -11,8 +11,7 @@ RUN apt-get update -y && apt-get install -y \
     sudo netcat-traditional libmagic-dev libgeos-dev pkg-config libaio1 libaio-dev \
     default-libmysqlclient-dev locales locales-all postgresql-client-common \
     postgresql-client unixodbc unixodbc-dev libsqliteodbc chromium-driver \
-    freetds-dev freetds-bin nim rustc redis-tools vim-tiny exempi libexempi-dev && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
+    freetds-dev freetds-bin nim rustc redis-tools vim-tiny exempi libexempi-dev
 
 # Locales setup
 # Set the locale to en_US.UTF-8 and other languages
@@ -35,21 +34,42 @@ ENV LANG_FR=fr.UTF-8
 ENV LANG_PT_BR=pt_BR.UTF-8
 ENV LANG_PT_PT=pt_PT.UTF-8
 
-# Install UV
-RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+# Clean up
+RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Create user 'troc' and working directory
+# Create a user 'troc', create necessary directories and set permissions
 RUN useradd --create-home --user-group troc
+RUN mkdir -p /home/troc/.ssh
+RUN chmod -R 770 /home/troc
+RUN chown -R troc:troc /home/troc
+
+# Add troc user to sudo
+RUN adduser troc sudo
+RUN echo "troc ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+
+# Set the working directory to /code
+RUN mkdir -p /code
+COPY Makefile /code/
+RUN chown -R troc:troc /code
+RUN mkdir -p /home/ubuntu/symbits /var/log/troc/
+RUN chown troc:troc /code /home/ubuntu/symbits /var/log/troc/
+
+# Change user and set working directory
 USER troc
 WORKDIR /code
 
-# Copy Makefile, pyproject.toml and uv.lock first (for Docker layer caching)
-COPY Makefile pyproject.toml uv.lock ./
+# Set Site Root Variable
+ENV SITE_ROOT=/code
 
-# Install uv first, then run the commands
+# Copy pyproject.toml and uv.lock for Docker layer caching
+COPY pyproject.toml uv.lock ./
+
+# Install UV using pip and add to PATH
 RUN pip install uv
-RUN make install-uv
-RUN uv sync --frozen --no-cache
+ENV PATH="/home/troc/.local/bin:$PATH"
+
+# Install dependencies using the new Makefile
+RUN make install
 
 # Copy application source code
 COPY --chown=troc:troc . .
@@ -57,5 +77,5 @@ COPY --chown=troc:troc . .
 # Expose port (adjust if necessary)
 EXPOSE 5000
 
-# Entrypoint (adjust 'app:app' to your WSGI app module)
-CMD ["uv", "run", "gunicorn", "app:app", "--bind", "0.0.0.0:5000"]
+
+
