@@ -1,24 +1,19 @@
-FROM python:3.11.9-slim-bookworm AS builder
+FROM python:3.11-slim-bookworm AS builder
 
 USER root
 
-# Install necessary packages
+# System dependencies (toolchains and C libraries)
 RUN apt-get update -y && apt-get install -y \
     git make automake gcc g++ python3-dev subversion libpq-dev postgresql-server-dev-all \
     zlib1g-dev libblas-dev liblapack-dev gfortran libxml2-dev libxslt1-dev python3-cffi \
     libcairo2 libpango-1.0-0 libpangocairo-1.0-0 libgdk-pixbuf2.0-0 libffi-dev \
-    shared-mime-info libmemcached-dev zlib1g-dev build-essential libffi-dev libyaml-dev \
-    sudo netcat-traditional libmagic-dev libgeos-dev pkg-config  git  libaio1 libaio-dev \
-    default-libmysqlclient-dev locales locales-all make automake gcc g++ subversion libpq-dev \
-    postgresql-client-common postgresql-client unixodbc unixodbc-dev libsqliteodbc \
-    zlib1g-dev libblas-dev chromium-driver liblapack-dev freetds-dev freetds-bin gfortran \
-    libxml2-dev libxslt1-dev python3-cffi libcairo2 libpango-1.0-0 libpangocairo-1.0-0 \
-    libgdk-pixbuf2.0-0 libffi-dev shared-mime-info libmariadb-dev libmemcached-dev \
-    nim rustc redis-tools vim-tiny exempi libexempi-dev
+    shared-mime-info libmemcached-dev libyaml-dev \
+    sudo netcat-traditional libmagic-dev libgeos-dev pkg-config libaio1 libaio-dev \
+    default-libmysqlclient-dev locales locales-all postgresql-client-common \
+    postgresql-client unixodbc unixodbc-dev libsqliteodbc chromium-driver \
+    freetds-dev freetds-bin nim rustc redis-tools vim-tiny exempi libexempi-dev
 
-# Install locales package
-RUN apt-get update && apt-get install -y locales
-
+# Locales setup
 # Set the locale to en_US.UTF-8 and other languages
 RUN sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen
 RUN for lang in en_US.UTF-8 es_ES.UTF-8 zh_CN.UTF-8 zh_TW.UTF-8 fr.UTF-8 de.UTF-8 tr.UTF-8 ja.UTF-8 ko.UTF-8 pt_BR.UTF-8 pt_PT.UTF-8; do locale-gen $lang; done
@@ -66,14 +61,21 @@ WORKDIR /code
 # Set Site Root Variable
 ENV SITE_ROOT=/code
 
-# Environment:
-ENV PATH="/code/venv/bin:/home/troc/.local/bin:$PATH"
+# Copy pyproject.toml and uv.lock for Docker layer caching
+COPY pyproject.toml uv.lock ./
 
-# Install and upgrade pip
-RUN python3 -m pip install --upgrade pip sdist setuptools
+# Install UV using pip and add to PATH
+RUN pip install uv
+ENV PATH="/home/troc/.local/bin:$PATH"
 
-# Execute 'make install' to install all requirements
+# Install dependencies using the new Makefile
 RUN make install
 
-# Expose port 5000
+# Copy application source code
+COPY --chown=troc:troc . .
+
+# Expose port (adjust if necessary)
 EXPOSE 5000
+
+
+
