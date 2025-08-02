@@ -1,14 +1,48 @@
+.PHONY: venv install install-uv lock sync dev clean distclean build-docker
+
+PYTHON_VERSION := 3.11
+
+venv:
+	uv venv --python $(PYTHON_VERSION) .venv
+	@echo 'Virtualenv created at .venv. Activate with: source .venv/bin/activate'
+
 install:
-	pip install --upgrade python-datamodel
-	pip install --upgrade asyncdb[default]
-	pip install --upgrade navconfig[default]
-	pip install --upgrade async-notify[all]
-	pip install --upgrade navigator-api[locale,uvloop]
-	# Nav requirements:
-	pip install --upgrade navigator-session
-	pip install --upgrade navigator-auth
-	pip install --upgrade querysource
-	pip install --upgrade gunicorn	
-	pip install --upgrade azure-teambots
+	uv sync --no-dev
 
+install-uv:
+	uv install querysource
+	uv install azure-teambots
 
+lock:
+	uv lock
+
+sync:
+	uv sync --frozen --no-dev
+
+dev:
+	uv sync
+
+clean:
+	rm -rf build/ dist/ *.egg-info/
+	find . -type d -name __pycache__ -delete
+	find . -type f -name "*.pyc" -delete
+
+distclean:
+	rm -rf .venv
+	rm -rf uv.lock
+
+build-docker:
+	docker build -t flowcore .
+
+# Development helpers
+format:
+	uv run black .
+
+lint:
+	uv run pylint .
+
+type-check:
+	uv run mypy .
+
+test:
+	uv run pytest

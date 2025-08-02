@@ -1,27 +1,23 @@
-FROM python:3.11.9-slim-bookworm AS builder
+FROM python:3.11-slim-bookworm AS builder
 
 USER root
 
-# Install necessary packages
+# System dependencies (toolchains and C libraries)
 RUN apt-get update -y && apt-get install -y \
     git make automake gcc g++ python3-dev subversion libpq-dev postgresql-server-dev-all \
     zlib1g-dev libblas-dev liblapack-dev gfortran libxml2-dev libxslt1-dev python3-cffi \
     libcairo2 libpango-1.0-0 libpangocairo-1.0-0 libgdk-pixbuf2.0-0 libffi-dev \
-    shared-mime-info libmemcached-dev zlib1g-dev build-essential libffi-dev libyaml-dev \
-    sudo netcat-traditional libmagic-dev libgeos-dev pkg-config  git  libaio1 libaio-dev \
-    default-libmysqlclient-dev locales locales-all make automake gcc g++ subversion libpq-dev \
-    postgresql-client-common postgresql-client unixodbc unixodbc-dev libsqliteodbc \
-    zlib1g-dev libblas-dev chromium-driver liblapack-dev freetds-dev freetds-bin gfortran \
-    libxml2-dev libxslt1-dev python3-cffi libcairo2 libpango-1.0-0 libpangocairo-1.0-0 \
-    libgdk-pixbuf2.0-0 libffi-dev shared-mime-info libmariadb-dev libmemcached-dev \
-    nim rustc redis-tools vim-tiny exempi libexempi-dev
+    shared-mime-info libmemcached-dev libyaml-dev \
+    sudo netcat-traditional libmagic-dev libgeos-dev pkg-config libaio1 libaio-dev \
+    default-libmysqlclient-dev locales locales-all postgresql-client-common \
+    postgresql-client unixodbc unixodbc-dev libsqliteodbc chromium-driver \
+    freetds-dev freetds-bin nim rustc redis-tools vim-tiny exempi libexempi-dev && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Install locales package
-RUN apt-get update && apt-get install -y locales
-
+# Locales setup
 # Set the locale to en_US.UTF-8 and other languages
 RUN sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen
-RUN for lang in en_US.UTF-8 es_ES.UTF-8 zh_CN.UTF-8 zh_TW.UTF-8 fr.UTF-8 de.UTF-8 tr.UTF-8 ja.UTF-8 ko.UTF-8; do locale-gen $lang; done
+RUN for lang in en_US.UTF-8 es_ES.UTF-8 zh_CN.UTF-8 zh_TW.UTF-8 fr.UTF-8 de.UTF-8 tr.UTF-8 ja.UTF-8 ko.UTF-8 pt_BR.UTF-8 pt_PT.UTF-8; do locale-gen $lang; done
 RUN update-locale
 
 # Set environment variables for the locale
@@ -36,42 +32,28 @@ ENV LANG_TR=tr.UTF-8
 ENV LANG_ES=es_ES.UTF-8
 ENV LANG_DE=de.UTF-8
 ENV LANG_FR=fr.UTF-8
+ENV LANG_PT_BR=pt_BR.UTF-8
+ENV LANG_PT_PT=pt_PT.UTF-8
 
-# Clean up
-RUN apt-get clean && rm -rf /var/lib/apt/lists/*
+# Install UV
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 
-# Create a user 'troc', create necessary directories and set permissions
+# Create user 'troc' and working directory
 RUN useradd --create-home --user-group troc
-RUN mkdir -p /home/troc/.ssh
-RUN chmod -R 770 /home/troc
-RUN chown -R troc:troc /home/troc
-
-# Add troc user to sudo
-RUN adduser troc sudo
-RUN echo "troc ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
-
-# Set the working directory to /code
-RUN mkdir -p /code
-COPY Makefile /code/
-RUN chown -R troc:troc /code
-RUN mkdir -p /home/ubuntu/symbits /var/log/troc/
-RUN chown troc:troc /code /home/ubuntu/symbits /var/log/troc/
-
-# Change user and set working directory
 USER troc
 WORKDIR /code
 
-# Set Site Root Variable
-ENV SITE_ROOT=/code
+# Copy Makefile, pyproject.toml and uv.lock first (for Docker layer caching)
+COPY Makefile pyproject.toml uv.lock ./
+RUN make install-uv
+RUN pip install uv
+RUN uv sync --frozen --no-cache
 
-# Environment:
-ENV PATH="/code/venv/bin:/home/troc/.local/bin:$PATH"
+# Copy application source code
+COPY --chown=troc:troc . .
 
-# Install and upgrade pip
-RUN python3 -m pip install --upgrade pip sdist setuptools
-
-# Execute 'make install' to install all requirements
-RUN make install
-
-# Expose port 5000
+# Expose port (adjust if necessary)
 EXPOSE 5000
+
+# Entrypoint (adjust 'app:app' to your WSGI app module)
+CMD ["uv", "run", "gunicorn", "app:app", "--bind", "0.0.0.0:5000"]
