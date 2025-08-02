@@ -45,8 +45,10 @@ WORKDIR /code
 
 # Copy Makefile, pyproject.toml and uv.lock first (for Docker layer caching)
 COPY Makefile pyproject.toml uv.lock ./
-RUN make install-uv
+
+# Install uv first, then run the commands
 RUN pip install uv
+RUN make install-uv
 RUN uv sync --frozen --no-cache
 
 # Copy application source code
