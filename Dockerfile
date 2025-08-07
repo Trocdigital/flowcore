@@ -68,8 +68,8 @@ COPY pyproject.toml uv.lock ./
 RUN pip install uv
 ENV PATH="/home/troc/.local/bin:$PATH"
 
-# Install dependencies using the new Makefile
-RUN make install
+# Install dependencies including production extras (gunicorn, uvicorn)
+RUN uv sync --frozen --extra production
 
 # Copy application source code
 COPY --chown=troc:troc . .
