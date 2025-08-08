@@ -65,8 +65,9 @@ ENV SITE_ROOT=/code
 COPY pyproject.toml uv.lock Makefile ./
 
 # Install UV using pip and add to PATH
-RUN make install-uv
+RUN pip install uv
 ENV PATH="/home/troc/.local/bin:$PATH"
+RUN uv venv
 
 # Install dependencies including production extras (gunicorn, uvicorn)
 RUN make install
