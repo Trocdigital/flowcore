@@ -14,6 +14,11 @@ install-uv:
 	@echo "uv installed! You may need to restart your shell or run 'source ~/.bashrc'"
 	@echo "Then re-run make commands to use uv workflows"
 
+# Create virtual environment
+venv:
+	uv venv --python $(PYTHON_VERSION) .venv
+	@echo 'run `source .venv/bin/activate` to start navigator.'
+
 # Generate lock files (uv only)
 lock:
 ifdef HAS_UV

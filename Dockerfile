@@ -66,11 +66,17 @@ COPY pyproject.toml uv.lock Makefile ./
 
 # Install UV using pip and add to PATH
 RUN pip install uv
+RUN make install-uv
 ENV PATH="/home/troc/.local/bin:$PATH"
-RUN uv venv
+RUN make venv
 
 # Install dependencies including production extras (gunicorn, uvicorn)
 RUN make install
+
+ENV PATH="/code/.venv/bin:/home/troc/.local/bin:$PATH"
+
+# Let's ensure gunicorn is installed
+RUN /code/.venv/bin/gunicorn --version
 
 # Copy application source code
 COPY --chown=troc:troc . .
