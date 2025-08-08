@@ -62,20 +62,17 @@ WORKDIR /code
 ENV SITE_ROOT=/code
 
 # Copy pyproject.toml and uv.lock for Docker layer caching
-COPY pyproject.toml uv.lock ./
+COPY pyproject.toml uv.lock Makefile ./
 
 # Install UV using pip and add to PATH
-RUN pip install uv
+RUN make install-uv
 ENV PATH="/home/troc/.local/bin:$PATH"
 
 # Install dependencies including production extras (gunicorn, uvicorn)
-RUN uv sync --frozen --extra production
+RUN make install
 
 # Copy application source code
 COPY --chown=troc:troc . .
 
 # Expose port (adjust if necessary)
 EXPOSE 5000
-
-
-

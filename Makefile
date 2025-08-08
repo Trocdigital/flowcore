@@ -14,8 +14,6 @@ install-uv:
 	@echo "uv installed! You may need to restart your shell or run 'source ~/.bashrc'"
 	@echo "Then re-run make commands to use uv workflows"
 
-
-
 # Generate lock files (uv only)
 lock:
 ifdef HAS_UV
@@ -25,17 +23,16 @@ else
 endif
 
 install:
-	uv sync --frozen --no-dev
-	uv pip install navigator-api[uvloop,locale]
+	uv sync --frozen --no-dev --extra production
 	@echo "Production dependencies installed. Use 'make develop' for development setup."
 
 # Install all dependencies including dev dependencies
 develop:
-	uv sync --frozen --extra all --extra dev
+	uv sync --frozen --extra dev
 
 # Alternative: install without lock file (faster for development)
 develop-fast:
-	uv pip install -e .[all,dev]
+	uv pip install -e .[dev]
 
 # Setup development environment from requirements file (if you still have one)
 setup:
