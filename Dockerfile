@@ -11,7 +11,8 @@ RUN apt-get update -y && apt-get install -y \
     sudo netcat-traditional libmagic-dev libgeos-dev pkg-config libaio1 libaio-dev \
     default-libmysqlclient-dev locales locales-all postgresql-client-common \
     postgresql-client unixodbc unixodbc-dev libsqliteodbc chromium-driver \
-    freetds-dev freetds-bin nim rustc redis-tools vim-tiny exempi libexempi-dev ffmpeg
+    freetds-dev freetds-bin nim rustc redis-tools vim-tiny exempi libexempi-dev \
+    ffmpeg libavutil-dev libavformat-dev libavcodec-dev
 
 # Locales setup
 # Set the locale to en_US.UTF-8 and other languages
@@ -61,8 +62,8 @@ WORKDIR /code
 # Set Site Root Variable
 ENV SITE_ROOT=/code
 
-# Copy pyproject.toml and uv.lock for Docker layer caching
-COPY pyproject.toml uv.lock Makefile ./
+# Copy pyproject.toml for Docker layer caching
+COPY pyproject.toml Makefile ./
 
 # Install UV using pip and add to PATH
 RUN pip install uv
