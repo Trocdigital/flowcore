@@ -28,7 +28,7 @@ else
 endif
 
 install:
-	uv sync --frozen --no-dev --extra production
+	uv sync --no-dev --extra production
 	@echo "Production dependencies installed. Use 'make develop' for development setup."
 
 # Install all dependencies including dev dependencies
