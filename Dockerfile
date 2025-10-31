@@ -12,7 +12,7 @@ RUN apt-get update -y && apt-get install -y \
     default-libmysqlclient-dev locales locales-all postgresql-client-common \
     postgresql-client unixodbc unixodbc-dev libsqliteodbc chromium-driver \
     freetds-dev freetds-bin nim rustc redis-tools vim-tiny exempi libexempi-dev \
-    ffmpeg libavutil-dev libavformat-dev libavcodec-dev
+    ffmpeg libavutil-dev libavformat-dev libavcodec-dev libcudnn8 libcudnn8-dev
 
 # Locales setup
 # Set the locale to en_US.UTF-8 and other languages
