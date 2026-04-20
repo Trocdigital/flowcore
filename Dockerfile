@@ -19,7 +19,8 @@ RUN apt-get install -y \
     default-libmysqlclient-dev locales locales-all postgresql-client-common \
     postgresql-client unixodbc unixodbc-dev libsqliteodbc chromium-driver \
     freetds-dev freetds-bin nim rustc redis-tools vim-tiny exempi libexempi-dev \
-    ffmpeg libavutil-dev libavformat-dev libavcodec-dev libcudnn8 libcudnn8-dev curl
+    ffmpeg libavutil-dev libavformat-dev libavcodec-dev libcudnn8 libcudnn8-dev curl && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Locales setup
 # Set the locale to en_US.UTF-8 and other languages
@@ -41,9 +42,6 @@ ENV LANG_DE=de.UTF-8
 ENV LANG_FR=fr.UTF-8
 ENV LANG_PT_BR=pt_BR.UTF-8
 ENV LANG_PT_PT=pt_PT.UTF-8
-
-# Clean up
-RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Create a user 'troc', create necessary directories and set permissions
 RUN useradd --create-home --user-group troc
@@ -79,7 +77,7 @@ ENV PATH="/home/troc/.local/bin:$PATH"
 RUN make venv
 
 # Install dependencies including production extras (gunicorn, uvicorn)
-RUN make install
+RUN make install && uv cache clean
 
 ENV PATH="/code/.venv/bin:/home/troc/.local/bin:$PATH"
 
