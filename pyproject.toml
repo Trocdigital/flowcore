@@ -12,7 +12,9 @@ dependencies = [
     # Azure integration
     "azure-teambots",
     # Flowtask + QuerySource and AI Parrot
-    "querysource"
+    "querysource",
+    #AI Parrot LLMS
+    "ai-parrot[llms]"
 ]
 
 [project.optional-dependencies]

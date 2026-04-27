@@ -70,14 +70,13 @@ ENV SITE_ROOT=/code
 # Copy pyproject.toml for Docker layer caching
 COPY pyproject.toml Makefile ./
 
-# Install UV using pip and add to PATH
-RUN pip install uv
-RUN make install-uv
+# Install UV using pip (no-cache so pip doesn't bloat the layer)
+RUN pip install uv --no-cache-dir
 ENV PATH="/home/troc/.local/bin:$PATH"
-RUN make venv
 
-# Install dependencies including production extras (gunicorn, uvicorn)
-RUN make install && uv cache clean
+# Create venv, install deps, and wipe uv cache — all in one layer so the
+# download cache is never committed to an image layer.
+RUN make venv && make install && uv cache clean
 
 ENV PATH="/code/.venv/bin:/home/troc/.local/bin:$PATH"
 
