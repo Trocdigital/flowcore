@@ -17,10 +17,16 @@ RUN apt-get install -y \
     shared-mime-info libmemcached-dev libyaml-dev \
     sudo netcat-traditional libmagic-dev libgeos-dev pkg-config libaio1 libaio-dev \
     default-libmysqlclient-dev locales locales-all postgresql-client-common \
-    postgresql-client unixodbc unixodbc-dev libsqliteodbc chromium chromium-driver \
+    postgresql-client unixodbc unixodbc-dev libsqliteodbc chromium unzip \
     freetds-dev freetds-bin nim rustc redis-tools vim-tiny exempi libexempi-dev \
     ffmpeg libavutil-dev libavformat-dev libavcodec-dev libcudnn8 libcudnn8-dev curl && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Install ChromeDriver matching the installed Chromium version
+RUN VER=$(curl -sf "https://googlechromelabs.github.io/chrome-for-testing/LATEST_RELEASE_$(chromium --version | grep -oP '\d+' | head -1)") \
+    && curl -sfL "https://storage.googleapis.com/chrome-for-testing-public/${VER}/linux64/chromedriver-linux64.zip" -o /tmp/cd.zip \
+    && unzip -p /tmp/cd.zip chromedriver-linux64/chromedriver > /usr/bin/chromedriver \
+    && chmod +x /usr/bin/chromedriver && rm /tmp/cd.zip
 
 # Locales setup
 # Set the locale to en_US.UTF-8 and other languages
