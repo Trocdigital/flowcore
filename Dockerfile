@@ -17,7 +17,7 @@ RUN apt-get install -y \
     shared-mime-info libmemcached-dev libyaml-dev \
     sudo netcat-traditional libmagic-dev libgeos-dev pkg-config libaio1 libaio-dev \
     default-libmysqlclient-dev locales locales-all postgresql-client-common \
-    postgresql-client unixodbc unixodbc-dev libsqliteodbc chromium-driver \
+    postgresql-client unixodbc unixodbc-dev libsqliteodbc chromium chromium-driver \
     freetds-dev freetds-bin nim rustc redis-tools vim-tiny exempi libexempi-dev \
     ffmpeg libavutil-dev libavformat-dev libavcodec-dev libcudnn8 libcudnn8-dev curl && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
