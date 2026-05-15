@@ -28,6 +28,10 @@ RUN VER=$(curl -sf "https://googlechromelabs.github.io/chrome-for-testing/LATEST
     && unzip -p /tmp/cd.zip chromedriver-linux64/chromedriver > /usr/bin/chromedriver \
     && chmod +x /usr/bin/chromedriver && rm /tmp/cd.zip
 
+# Tell Selenium Manager (Selenium 4.6+) to use the system chromedriver,
+# bypassing webdriver-manager's stale cache of v114 from the pre-CfT era.
+ENV SE_CHROMEDRIVER=/usr/bin/chromedriver
+
 # Locales setup
 # Set the locale to en_US.UTF-8 and other languages
 RUN sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen
