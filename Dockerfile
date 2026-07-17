@@ -19,7 +19,8 @@ RUN apt-get install -y \
     default-libmysqlclient-dev locales locales-all postgresql-client-common \
     postgresql-client unixodbc unixodbc-dev libsqliteodbc chromium unzip \
     freetds-dev freetds-bin nim rustc redis-tools vim-tiny exempi libexempi-dev \
-    ffmpeg libavutil-dev libavformat-dev libavcodec-dev libcudnn8 libcudnn8-dev curl && \
+    ffmpeg libavutil-dev libavformat-dev libavcodec-dev libheif-dev libde265-dev \
+    libcudnn8 libcudnn8-dev curl && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Install ChromeDriver matching the installed Chromium version
