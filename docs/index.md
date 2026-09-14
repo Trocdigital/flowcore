@@ -11,7 +11,7 @@ FlowCore is a base Docker image specifically designed to build and run applicati
 ## Main Features
 
 ### 🐍 Python Environment
-- **Version**: Python 3.11.9
+- **Version**: Python 3.12
 - **Base**: Debian Bookworm (slim)
 - **Package Management**: Updated pip with setuptools and sdist
 

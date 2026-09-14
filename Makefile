@@ -2,7 +2,7 @@
 .PHONY: venv install develop setup develop update setup clean distclean lock sync build-docker
 
 # Python version to use
-PYTHON_VERSION := 3.11
+PYTHON_VERSION := 3.12
 
 # Auto-detect available tools
 HAS_UV := $(shell command -v uv 2> /dev/null)
