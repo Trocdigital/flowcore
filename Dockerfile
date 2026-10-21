@@ -23,16 +23,6 @@ RUN apt-get install -y \
     libcudnn8 libcudnn8-dev curl && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# eMudhra / emSign CA incident (disclosed 2026-10-17): the private keys of eight
-# eMudhra intermediates are recoverable from their certificates. They chain to
-# "emSign ECC Root CA - G3" and to "AAA Certificate Services" (Comodo/Sectigo
-# cross-sign). Browsers and certifi already distrust them, but the Debian system
-# store (used by OpenSSL -> aiohttp, curl, psql, git) only does so from
-# ca-certificates 20250419~deb12u2 (bookworm-security, 2026-10-20). Pull that
-# upgrade explicitly and, as defence in depth against a stale mirror, blocklist
-# both roots ("!" prefix in /etc/ca-certificates.conf). The sed lines are no-ops
-# once deb12u2 is installed and can be dropped later.
-# Ref: https://emudhra.we-have-a-problem.com/
 RUN apt-get update -y && apt-get install -y --only-upgrade ca-certificates && \
     sed -i -e 's#^mozilla/emSign_ECC_Root_CA_-_G3.crt#!&#' \
            -e 's#^mozilla/Comodo_AAA_Services_root.crt#!&#' /etc/ca-certificates.conf && \
@@ -97,9 +87,7 @@ ENV SITE_ROOT=/code
 # Copy pyproject.toml for Docker layer caching
 COPY pyproject.toml Makefile ./
 
-# Install UV using pip (no-cache so pip doesn't bloat the layer).
-# pip >= 26.2.2 and uv >= 0.13.4 ship CA bundles without the compromised emSign
-# roots (both carry their own trust store and ignore the system one).
+# Install UV using pip (no-cache so pip doesn't bloat the layer)
 RUN pip install --no-cache-dir --upgrade "pip>=26.2.2" "uv>=0.13.4"
 ENV PATH="/home/troc/.local/bin:$PATH"
 
