@@ -14,7 +14,11 @@ dependencies = [
     # Flowtask + QuerySource and AI Parrot
     "querysource",
     #AI Parrot LLMS
-    "ai-parrot[llms]"
+    "ai-parrot[llms]",
+    # emSign CA incident (2026-10): first release without "emSign ECC Root CA - G3"
+    # that keeps the three unaffected emSign roots. Downstream images inherit
+    # this lock, so the floor must live here.
+    "certifi>=2026.10.19"
 ]
 
 [project.optional-dependencies]
