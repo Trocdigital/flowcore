@@ -23,6 +23,12 @@ RUN apt-get install -y \
     libcudnn8 libcudnn8-dev curl && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
+RUN apt-get update -y && apt-get install -y --only-upgrade ca-certificates && \
+    sed -i -e 's#^mozilla/emSign_ECC_Root_CA_-_G3.crt#!&#' \
+           -e 's#^mozilla/Comodo_AAA_Services_root.crt#!&#' /etc/ca-certificates.conf && \
+    update-ca-certificates --fresh && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
 # Install ChromeDriver matching the installed Chromium version
 RUN VER=$(curl -sf "https://googlechromelabs.github.io/chrome-for-testing/LATEST_RELEASE_$(chromium --version | grep -oP '\d+' | head -1)") \
     && curl -sfL "https://storage.googleapis.com/chrome-for-testing-public/${VER}/linux64/chromedriver-linux64.zip" -o /tmp/cd.zip \
@@ -82,7 +88,7 @@ ENV SITE_ROOT=/code
 COPY pyproject.toml Makefile ./
 
 # Install UV using pip (no-cache so pip doesn't bloat the layer)
-RUN pip install uv --no-cache-dir
+RUN pip install --no-cache-dir --upgrade "pip>=26.2.2" "uv>=0.13.4"
 ENV PATH="/home/troc/.local/bin:$PATH"
 
 # Create venv, install deps, and wipe uv cache — all in one layer so the
