@@ -10,7 +10,7 @@ RUN apt-get update -y && apt-get install -y wget gnupg2 ca-certificates && \
     apt-get update -y
 
 # System dependencies (toolchains and C libraries)
-RUN apt-get install -y \
+RUN apt-get update -y && apt-get upgrade -y && apt-get install -y \
     git make automake gcc g++ python3-dev subversion libpq-dev postgresql-server-dev-all \
     zlib1g-dev libblas-dev liblapack-dev gfortran libxml2-dev libxslt1-dev python3-cffi \
     libcairo2 libpango-1.0-0 libpangocairo-1.0-0 libgdk-pixbuf2.0-0 libffi-dev \
@@ -21,7 +21,18 @@ RUN apt-get install -y \
     freetds-dev freetds-bin nim rustc redis-tools vim-tiny exempi libexempi-dev \
     ffmpeg libavutil-dev libavformat-dev libavcodec-dev libheif-dev libde265-dev \
     libcudnn8 libcudnn8-dev curl && \
+    apt-get purge -y --auto-remove exim4-daemon-light exim4-base exim4-config bsd-mailx && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Minimum Debian versions that fix the CVEs reported by the image scan
+RUN for req in chromium=156.0.8078.79-1~deb12u1 linux-libc-dev=6.1.190-1 \
+        perl-base=5.36.0-7+deb12u4 libpython3.11-stdlib=3.11.2-6+deb12u9 \
+        libssl3=3.0.22-1~deb12u1 libnss3=2:3.87.1-1+deb12u4 \
+        libaprutil1=1.6.3-1+deb12u1 libbrotli1=1.0.9-2+deb12u1; do \
+      pkg=${req%%=*}; min=${req#*=}; \
+      cur=$(dpkg-query -W -f='${Version}' "$pkg") && \
+      dpkg --compare-versions "$cur" ge "$min" || { echo "$pkg $cur < $min" >&2; exit 1; }; \
+    done
 
 RUN apt-get update -y && apt-get install -y --only-upgrade ca-certificates && \
     sed -i -e 's#^mozilla/emSign_ECC_Root_CA_-_G3.crt#!&#' \
