@@ -1,34 +1,39 @@
-FROM python:3.12-slim-bookworm
+FROM python:3.12-slim-trixie
 
 USER root
 
-# Add NVIDIA CUDA repository for cuDNN
-RUN apt-get update -y && apt-get install -y wget gnupg2 ca-certificates && \
-    wget https://developer.download.nvidia.com/compute/cuda/repos/debian11/x86_64/cuda-keyring_1.1-1_all.deb && \
-    dpkg -i cuda-keyring_1.1-1_all.deb && \
-    rm cuda-keyring_1.1-1_all.deb && \
-    apt-get update -y
+# cuDNN 8 only ships in NVIDIA's debian11 repo, whose signing key trixie's apt rejects
+ARG CUDNN_REPO=https://developer.download.nvidia.com/compute/cuda/repos/debian11/x86_64
+ARG CUDNN_VERSION=8.9.7.29-1+cuda12.2
 
 # System dependencies (toolchains and C libraries)
-RUN apt-get update -y && apt-get upgrade -y && apt-get install -y \
+RUN apt-get update -y && apt-get upgrade -y && apt-get install -y wget ca-certificates && \
+    wget -q -P /tmp "${CUDNN_REPO}/libcudnn8_${CUDNN_VERSION}_amd64.deb" \
+                    "${CUDNN_REPO}/libcudnn8-dev_${CUDNN_VERSION}_amd64.deb" && \
+    printf '%s\n' \
+      "f683120f64fd1a5b47888662e27f284e0883297ee8eb6915c5e9eb9f2fdcb87e  /tmp/libcudnn8_${CUDNN_VERSION}_amd64.deb" \
+      "280cc2965b1004d262078fe0c1ce8dfc0cd73bc929c0d0e24f1758d5d793758f  /tmp/libcudnn8-dev_${CUDNN_VERSION}_amd64.deb" \
+      | sha256sum -c - && \
+    apt-get install -y \
     git make automake gcc g++ python3-dev subversion libpq-dev postgresql-server-dev-all \
     zlib1g-dev libblas-dev liblapack-dev gfortran libxml2-dev libxslt1-dev python3-cffi \
-    libcairo2 libpango-1.0-0 libpangocairo-1.0-0 libgdk-pixbuf2.0-0 libffi-dev \
+    libcairo2 libpango-1.0-0 libpangocairo-1.0-0 libgdk-pixbuf-2.0-0 libffi-dev \
     shared-mime-info libmemcached-dev libyaml-dev \
-    sudo netcat-traditional libmagic-dev libgeos-dev pkg-config libaio1 libaio-dev \
+    sudo netcat-traditional libmagic-dev libgeos-dev pkg-config libaio1t64 libaio-dev \
     default-libmysqlclient-dev locales locales-all postgresql-client-common \
     postgresql-client unixodbc unixodbc-dev libsqliteodbc chromium unzip \
-    freetds-dev freetds-bin nim rustc redis-tools vim-tiny exempi libexempi-dev \
+    freetds-dev freetds-bin rustc redis-tools vim-tiny exempi libexempi-dev \
     ffmpeg libavutil-dev libavformat-dev libavcodec-dev libheif-dev libde265-dev \
-    libcudnn8 libcudnn8-dev curl && \
+    /tmp/libcudnn8_${CUDNN_VERSION}_amd64.deb /tmp/libcudnn8-dev_${CUDNN_VERSION}_amd64.deb curl && \
+    rm -f /tmp/libcudnn8*.deb && \
     apt-get purge -y --auto-remove exim4-daemon-light exim4-base exim4-config bsd-mailx && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Minimum Debian versions that fix the CVEs reported by the image scan
-RUN for req in chromium=156.0.8078.79-1~deb12u1 linux-libc-dev=6.1.190-1 \
-        perl-base=5.36.0-7+deb12u4 libpython3.11-stdlib=3.11.2-6+deb12u9 \
-        libssl3=3.0.22-1~deb12u1 libnss3=2:3.87.1-1+deb12u4 \
-        libaprutil1=1.6.3-1+deb12u1 libbrotli1=1.0.9-2+deb12u1; do \
+RUN for req in chromium=156.0.8078.79-1~deb13u1 linux-libc-dev=6.12.113-1 \
+        perl-base=5.40.1-6+deb13u1 libssl3t64=3.5.7-1~deb13u2 \
+        libnss3=2:3.110-1+deb13u4 libaprutil1t64=1.6.3-3+deb13u1 \
+        libbrotli1=1.1.0-2+deb13u1 libmbedcrypto16=3.6.6-0.1~deb13u1; do \
       pkg=${req%%=*}; min=${req#*=}; \
       cur=$(dpkg-query -W -f='${Version}' "$pkg") && \
       dpkg --compare-versions "$cur" ge "$min" || { echo "$pkg $cur < $min" >&2; exit 1; }; \
